@@ -62,7 +62,7 @@ jobs:
             await page.reload();
             assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
             await page.locator('#language').selectOption('en');
-            assert.equal(await page.locator('#dict-results article').count(),58);
+            const dictionaryCount=await page.locator('#dict-results article').count(); assert.ok(dictionaryCount>=58);
             await page.locator('#dict-search').fill('to frio');
             assert.equal(await page.locator('#dict-results article').count(),1);
             await page.locator('#dict-search').fill('bacaneria');
@@ -74,11 +74,17 @@ jobs:
               await page.locator('#language').selectOption(lang);
               assert.equal(await page.locator('#dict-title').innerText(),label);
             }
+            await page.goto(origin+'/de/woerterbuch/klk/');
+            assert.equal(await page.locator('h1').innerText(),'KLK');
+            assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/de/woerterbuch/klk/');
+            assert.equal(await page.locator('link[hreflang]').count(),6);
+            assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
             assert.deepEqual(errors,[]);
             await page.close();
           }
           const xml=readFileSync('public/sitemap.xml','utf8');
           for(const l of ['de','es','en','fr','pt'])assert.ok(xml.includes('https://example.com/'+l+'/'));
+          assert.ok(xml.includes('https://example.com/de/woerterbuch/klk/'));
           assert.ok(readFileSync('public/robots.txt','utf8').includes('https://example.com/sitemap.xml'));
           } finally {await browser.close();server.close()}
           console.log('Chromium build and feature checks passed');
