@@ -61,6 +61,19 @@ jobs:
             await page.locator('#practice-reset').click();
             await page.reload();
             assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
+            await page.locator('#language').selectOption('en');
+            assert.equal(await page.locator('#dict-results article').count(),49);
+            await page.locator('#dict-search').fill('to frio');
+            assert.equal(await page.locator('#dict-results article').count(),1);
+            await page.locator('#dict-search').fill('bacaneria');
+            assert.equal(await page.locator('#dict-results article h3').innerText(),'Bacanería');
+            await page.locator('#dict-search').fill('');
+            await page.locator('#dict-category').selectOption('chat');
+            assert.equal(await page.locator('#dict-results article[data-category]:not([data-category="chat"])').count(),0);
+            for(const [lang,label] of [['de','Dominikanisches Wörterbuch'],['es','Diccionario dominicano'],['en','Dominican dictionary'],['fr','Dictionnaire dominicain'],['pt','Dicionário dominicano']]){
+              await page.locator('#language').selectOption(lang);
+              assert.equal(await page.locator('#dict-title').innerText(),label);
+            }
             assert.deepEqual(errors,[]);
             await page.close();
           }
