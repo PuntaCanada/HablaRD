@@ -62,7 +62,7 @@ jobs:
             await page.reload();
             assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
             await page.locator('#language').selectOption('en');
-            assert.equal(await page.locator('#dict-results article').count(),55);
+            assert.equal(await page.locator('#dict-results article').count(),58);
             await page.locator('#dict-search').fill('to frio');
             assert.equal(await page.locator('#dict-results article').count(),1);
             await page.locator('#dict-search').fill('bacaneria');
