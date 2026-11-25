@@ -74,6 +74,15 @@ jobs:
               await page.locator('#language').selectOption(lang);
               assert.equal(await page.locator('#dict-title').innerText(),label);
             }
+            await page.locator('#flash-reveal').click();
+            assert.ok(await page.locator('#flash-answer').isVisible());
+            await page.locator('#flash-save').click();
+            assert.equal(await page.locator('#flash-save').getAttribute('aria-pressed'),'true');
+            await page.reload();
+            await page.locator('#flash-only').check();
+            assert.equal(await page.locator('#flash-save').getAttribute('aria-pressed'),'true');
+            await page.locator('#flash-save').click();
+            assert.ok(await page.locator('#flash-next').isDisabled());
             await page.goto(origin+'/de/woerterbuch/klk/');
             assert.equal(await page.locator('h1').innerText(),'KLK');
             assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/de/woerterbuch/klk/');
