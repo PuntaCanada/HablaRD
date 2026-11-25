@@ -41,9 +41,9 @@ jobs:
               await page.goto(origin+'/');
             }
             await page.locator('#language').selectOption('en');
-            await page.locator('#quiz article').first().getByRole('button',{name:'Bus',exact:true}).click(); assert.equal(await page.locator('#score').innerText(),'1 / 3'); await page.reload(); assert.equal(await page.locator('#score').innerText(),'1 / 3');
+            const wordCount=await page.locator('#quiz article').count(); assert.ok(wordCount>=30); await page.locator('#quiz article').first().getByRole('button',{name:'Bus',exact:true}).click(); assert.equal(await page.locator('#score').innerText(),'1 / '+wordCount); await page.reload(); assert.equal(await page.locator('#score').innerText(),'1 / '+wordCount);
             assert.equal(await page.locator('#dialog button').count(),3); assert.equal(await page.locator('#dialog .wordcards p').count(),3); assert.ok((await page.locator('#dialog').innerText()).includes('Voy a Higüey.')); assert.equal(await page.locator('#more-items p').count(),3); assert.ok((await page.locator('#more-items').innerText()).includes('off-road vehicle'));
-            assert.deepEqual(errors,[]);
+            assert.equal(await page.locator('#a2-dialog p').count(),3); assert.ok((await page.locator('#a2-note').innerText()).includes('completed events')); assert.deepEqual(errors,[]);
             await page.close();
           }
           const xml=readFileSync('public/sitemap.xml','utf8');
