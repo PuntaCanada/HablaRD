@@ -61,11 +61,56 @@ jobs:
             await page.locator('#practice-reset').click();
             await page.reload();
             assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
+            await page.locator('#language').selectOption('en');
+            const dictionaryCount=await page.locator('#dict-results article').count(); assert.ok(dictionaryCount>=58);
+            await page.locator('#dict-search').fill('to frio');
+            assert.equal(await page.locator('#dict-results article').count(),1);
+            await page.locator('#dict-search').fill('bacaneria');
+            assert.equal(await page.locator('#dict-results article h3').innerText(),'Bacanería');
+            await page.locator('#dict-search').fill('');
+            await page.locator('#dict-category').selectOption('chat');
+            assert.equal(await page.locator('#dict-results article[data-category]:not([data-category="chat"])').count(),0);
+            for(const [lang,label] of [['de','Dominikanisches Wörterbuch'],['es','Diccionario dominicano'],['en','Dominican dictionary'],['fr','Dictionnaire dominicain'],['pt','Dicionário dominicano']]){
+              await page.locator('#language').selectOption(lang);
+              assert.equal(await page.locator('#dict-title').innerText(),label);
+            }
+            await page.locator('#flash-known').click();
+            assert.equal(await page.locator('#flash-known').getAttribute('aria-pressed'),'true');
+            assert.equal(await page.locator('#flash-progress').getAttribute('value'),'1');
+            await page.reload();
+            assert.equal(await page.locator('#flash-known').getAttribute('aria-pressed'),'true');
+            await page.locator('#flash-known').click();
+            await page.locator('#flash-reveal').click();
+            assert.ok(await page.locator('#flash-answer').isVisible());
+            await page.locator('#flash-save').click();
+            assert.equal(await page.locator('#flash-save').getAttribute('aria-pressed'),'true');
+            await page.reload();
+            await page.locator('#flash-only').check();
+            assert.equal(await page.locator('#flash-save').getAttribute('aria-pressed'),'true');
+            await page.locator('#flash-save').click();
+            assert.ok(await page.locator('#flash-next').isDisabled());
+            await page.goto(origin+'/de/woerterbuch/klk/');
+            assert.equal(await page.locator('h1').innerText(),'KLK');
+            assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/de/woerterbuch/klk/');
+            assert.equal(await page.locator('link[hreflang]').count(),6);
+            assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+            for(const lang of ['de','es','en','fr','pt']){
+              await page.goto(origin+'/'+lang+'/');
+              assert.equal(await page.locator('#partners-link').getAttribute('href'),'/'+lang+'/partners/');
+              await page.locator('#partners-link').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),lang);
+              assert.equal(await page.locator('#partner-cards .project').count(),8);
+              assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/'+lang+'/partners/');
+              assert.equal(await page.locator('link[hreflang]').count(),6);
+              assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+            }
             assert.deepEqual(errors,[]);
             await page.close();
           }
           const xml=readFileSync('public/sitemap.xml','utf8');
+          for(const l of ['de','es','en','fr','pt'])assert.ok(xml.includes('https://example.com/'+l+'/partners/'));
           for(const l of ['de','es','en','fr','pt'])assert.ok(xml.includes('https://example.com/'+l+'/'));
+          assert.ok(xml.includes('https://example.com/de/woerterbuch/klk/'));
           assert.ok(readFileSync('public/robots.txt','utf8').includes('https://example.com/sitemap.xml'));
           } finally {await browser.close();server.close()}
           console.log('Chromium build and feature checks passed');
