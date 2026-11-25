@@ -43,7 +43,25 @@ jobs:
             await page.locator('#language').selectOption('en');
             const wordCount=await page.locator('#quiz article').count(); assert.ok(wordCount>=30); await page.locator('#quiz article').first().getByRole('button',{name:'Bus',exact:true}).click(); assert.equal(await page.locator('#score').innerText(),'1 / '+wordCount); await page.reload(); assert.equal(await page.locator('#score').innerText(),'1 / '+wordCount);
             assert.equal(await page.locator('#dialog button').count(),3); assert.equal(await page.locator('#dialog .wordcards p').count(),3); assert.ok((await page.locator('#dialog').innerText()).includes('Voy a Higüey.')); assert.equal(await page.locator('#more-items p').count(),3); assert.ok((await page.locator('#more-items').innerText()).includes('off-road vehicle'));
-            assert.equal(await page.locator('#a2-dialog p').count(),3); assert.ok((await page.locator('#a2-note').innerText()).includes('completed events')); assert.deepEqual(errors,[]);
+            assert.equal(await page.locator('#a2-dialog p').count(),3); assert.ok((await page.locator('#a2-note').innerText()).includes('completed events')); assert.equal(await page.locator('#overview-links a').count(),5);
+            assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
+            const exercise=page.locator('#practice-items .exercise').first();
+            await exercise.getByRole('button',{name:'están',exact:true}).click();
+            assert.ok((await exercise.innerText()).includes('Try again'));
+            assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
+            await exercise.getByRole('button',{name:'está',exact:true}).click();
+            assert.equal(await page.locator('#practice-progress').innerText(),'1 / 5');
+            await page.reload();
+            assert.equal(await page.locator('#practice-progress').innerText(),'1 / 5');
+            for(const [lang,label] of [['de','Übungen'],['es','Ejercicios'],['en','Exercises'],['fr','Exercices'],['pt','Exercícios']]){
+              await page.locator('#language').selectOption(lang);
+              assert.equal(await page.locator('#practice-title').innerText(),label);
+              assert.equal(await page.locator('#practice-progress').innerText(),'1 / 5');
+            }
+            await page.locator('#practice-reset').click();
+            await page.reload();
+            assert.equal(await page.locator('#practice-progress').innerText(),'0 / 5');
+            assert.deepEqual(errors,[]);
             await page.close();
           }
           const xml=readFileSync('public/sitemap.xml','utf8');
