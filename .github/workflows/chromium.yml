@@ -74,6 +74,12 @@ jobs:
               await page.locator('#language').selectOption(lang);
               assert.equal(await page.locator('#dict-title').innerText(),label);
             }
+            await page.locator('#flash-known').click();
+            assert.equal(await page.locator('#flash-known').getAttribute('aria-pressed'),'true');
+            assert.equal(await page.locator('#flash-progress').getAttribute('value'),'1');
+            await page.reload();
+            assert.equal(await page.locator('#flash-known').getAttribute('aria-pressed'),'true');
+            await page.locator('#flash-known').click();
             await page.locator('#flash-reveal').click();
             assert.ok(await page.locator('#flash-answer').isVisible());
             await page.locator('#flash-save').click();
