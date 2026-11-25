@@ -79,10 +79,21 @@ jobs:
             assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/de/woerterbuch/klk/');
             assert.equal(await page.locator('link[hreflang]').count(),6);
             assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+            for(const lang of ['de','es','en','fr','pt']){
+              await page.goto(origin+'/'+lang+'/');
+              assert.equal(await page.locator('#partners-link').getAttribute('href'),'/'+lang+'/partners/');
+              await page.locator('#partners-link').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),lang);
+              assert.equal(await page.locator('#partner-cards .project').count(),8);
+              assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/'+lang+'/partners/');
+              assert.equal(await page.locator('link[hreflang]').count(),6);
+              assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+            }
             assert.deepEqual(errors,[]);
             await page.close();
           }
           const xml=readFileSync('public/sitemap.xml','utf8');
+          for(const l of ['de','es','en','fr','pt'])assert.ok(xml.includes('https://example.com/'+l+'/partners/'));
           for(const l of ['de','es','en','fr','pt'])assert.ok(xml.includes('https://example.com/'+l+'/'));
           assert.ok(xml.includes('https://example.com/de/woerterbuch/klk/'));
           assert.ok(readFileSync('public/robots.txt','utf8').includes('https://example.com/sitemap.xml'));
