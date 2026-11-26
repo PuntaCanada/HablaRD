@@ -99,7 +99,12 @@ jobs:
               assert.equal(await page.locator('#partners-link').getAttribute('href'),'/'+lang+'/partners/');
               await page.locator('#partners-link').click();
               assert.equal(await page.locator('html').getAttribute('lang'),lang);
-              assert.equal(await page.locator('#partner-cards .project').count(),8);
+              assert.equal(await page.locator('#partner-cards .project').count(),14);
+              const targets=await page.locator('#partner-cards .project').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href')));
+              assert.equal(new Set(targets).size,14);
+              assert.ok(!targets.includes('https://hablard.pages.dev/'));
+              for(const target of ["https://ahorrord.pages.dev/","https://transporterd.pages.dev/","https://aprenderd.pages.dev/","https://handyfix.pages.dev/","https://dateiwerk.pages.dev/","https://voicefix.pages.dev/"])assert.ok(targets.includes(target),target);
+              assert.match(await page.locator('#partner-cards .project[href="https://recarganet-rd.pages.dev/"]').innerText(),/simulat|simulaci|simulação/i);
               assert.equal(await page.locator('link[rel=canonical]').getAttribute('href'),'https://example.com/'+lang+'/partners/');
               assert.equal(await page.locator('link[hreflang]').count(),6);
               assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
